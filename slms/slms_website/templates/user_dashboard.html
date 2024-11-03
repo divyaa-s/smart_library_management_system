@@ -1,0 +1,173 @@
+<!--
+{% load static %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/user_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Library</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'logout'%}" onclick="confirmLogout()">Logout</a></li>
+                <li><a href="/home">Home</a></li>
+                {% if user %}
+                    {% if user.role == 'Admin' %}
+                        <li><a href="/admin-dashboard">Admin Dashboard</a></li>
+                    {% elif user.role == 'User' %}
+                    <li><a href="/user-dashboard">User dashboard</a></li>
+                    {% elif user.role == 'Staff' %}
+                    <li><a href="/staff-dashboard/">Staff dashboard</a></li>
+                    {% endif %}
+                {% endif %}
+                <li><a href="/book-details">Book Details</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/search-results">Search Results</a></li>
+
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for books...">
+            <button onclick="searchBooks()">Search</button>
+        </div>
+    </header>
+    <main class="user-dashboard">
+        <section class="dashboard-section">
+            <h2>Welcome, User!</h2>
+            <p>Manage your library activities here.</p>
+        </section>
+        <section class="dashboard-section">
+            <h3>Borrowed Books</h3>
+            <ul>
+                 <List of borrowed books 
+                <li><a href="/user/borrowed-books">View Borrowed Books</a></li>
+            </ul>
+        </section>
+        <section class="dashboard-section">
+            <h3>Reserved Books</h3>
+            <ul>
+                < List of reserved books 
+                <li><a href="/user/reserved-books">View Reserved Books</a></li>
+            </ul>
+        </section>
+        <section class="dashboard-section">
+            <h3>Account Settings</h3>
+            <ul>
+                <li><a href="/user/account-settings">Edit Account Settings</a></li>
+            </ul>
+        </section>
+    </main>
+    <script src="{% static 'js/user_dashboard.js' %}"></script>
+</body>
+<script>
+    function confirmLogout() {
+        if (confirm("Are you sure you want to log out?")) {
+            window.location.href = "{% url 'logout' %}";  // Redirect to the logout URL
+        }
+    }
+</script>
+
+</html>
+-->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/user_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Library</h1>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                {% if user.role == 'Admin' %}
+                    <li><a href="{% url 'admin-dashboard' %}">Admin Dashboard</a></li>
+                {% elif user.role == 'User' %}
+                    <li><a href="{% url 'user-dashboard' %}">User Dashboard</a></li>
+                {% elif user.role == 'Staff' %}
+                    <li><a href="{% url 'staff-dashboard' %}">Staff Dashboard</a></li>
+                {% endif %}
+                <li><a href="{% url 'book_details' %}">Book Details</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'search-results' %}">Search Results</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for books...">
+            <button onclick="searchBooks()">Search</button>
+        </div>
+    </header>
+    <main class="user-dashboard">
+        <section class="dashboard-section">
+            <h2>Welcome, {{ user.username }}!</h2>
+            <p>Manage your library activities here.</p>
+        </section>
+        
+        <section class="dashboard-section">
+            <h3>Borrowed Books</h3>
+            <ul>
+                {% for book in borrowed_books %}
+                    <li>{{ book.book.title }} - Due on {{ book.return_date|date:"M d, Y" }}</li>
+                {% empty %}
+                    <li>No borrowed books currently.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="dashboard-section">
+            <h3>Reserved Books</h3>
+            <ul>
+                {% for reservation in reserved_books %}
+                    <li>{{ reservation.book.title }} - Expires on {{ reservation.expiration_date|date:"M d, Y" }}</li>
+                {% empty %}
+                    <li>No reserved books currently.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="dashboard-section">
+            <h3>Recommended Books</h3>
+            <ul>
+                {% for book in recommended_books %}
+                    <li>{{ book.title }} - Score: {{ book.score }}</li>
+                {% empty %}
+                    <li>No recommendations available.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="dashboard-section">
+            <h3>Account Settings</h3>
+            <ul>
+                <li><a href="{% url 'edit_profile' %}">Edit Account Settings</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="{% static 'js/user_dashboard.js' %}"></script>
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "{% url 'logout' %}";  // Redirect to the logout URL
+            }
+        }
+    </script>
+</body>
+</html>

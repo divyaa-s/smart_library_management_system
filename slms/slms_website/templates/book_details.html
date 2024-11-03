@@ -1,0 +1,117 @@
+<!--{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="book-details">
+        <h2>{{ book.title }}</h2>
+        <p>Author: {{ book.author }}</p>
+        <p>Genre: {{ book.genre }}</p>
+        <p>ISBN: {{ book.isbn }}</p>
+        <p>Synopsis: {{ book.synopsis }}</p>
+        <p>Status: {{ book.status }}</p>
+        {% if user.is_authenticated %}
+            <button>Borrow</button>
+        {% endif %}
+        <section class="similar-books">
+            <h3>Similar Books</h3>
+            <ul>
+                {% for similar_book in similar_books %}
+                    <li>{{ similar_book.title }} by {{ similar_book.author }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+</body>
+</html>
+-->
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Library</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'logout'%}" onclick="confirmLogout()">Logout</a></li>
+                <li><a href="/home">Home</a></li>
+                {% if user %}
+                    {% if user.role == 'Admin' %}
+                        <li><a href="/admin-dashboard">Admin Dashboard</a></li>
+                    {% elif user.role == 'User' %}
+                    <li><a href="/user-dashboard">User dashboard</a></li>
+                    {% elif user.role == 'Staff' %}
+                    <li><a href="/staff-dashboard/">Staff dashboard</a></li>
+                    {% endif %}
+                {% endif %}
+                <li><a href="/book-details">Book Details</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/search-results">Search Results</a></li>
+
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for books...">
+            <button onclick="searchBooks()">Search</button>
+        </div>
+    </header>
+    <div class="search-bar">
+        <h2>Search for a Book by ID</h2>
+        <form method="GET" action="{% url 'book_details' %}">
+            <input type="text" name="id" placeholder="Enter Book ID" required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if book %}
+        <div class="book-details">
+            <h3>{{ book.title }}</h3>
+            <p>Author: {{ book.author }}</p>
+            <p>Genre: {{ book.genre }}</p>
+            <p>ISBN: {{ book.isbn }}</p>
+            <p>Synopsis: {{ book.synopsis }}</p>
+            <p>Status: {{ book.availability|yesno:"Available,Unavailable" }}</p>
+            {% if user.is_authenticated %}
+                <button>Borrow</button>
+            {% endif %}
+        </div>
+
+        <section class="similar-books">
+            <h3>Similar Books</h3>
+            <ul>
+                {% for similar_book in similar_books %}
+                    <li>{{ similar_book.title }} by {{ similar_book.author }}</li>
+                {% empty %}
+                    <li>No similar books found.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% else %}
+        <p>No book found. Please search with a valid ID.</p>
+    {% endif %}
+</body>
+<script>
+    function confirmLogout() {
+        if (confirm("Are you sure you want to log out?")) {
+            window.location.href = "{% url 'logout' %}";  // Redirect to the logout URL
+        }
+    }
+    </script>
+
+</html>

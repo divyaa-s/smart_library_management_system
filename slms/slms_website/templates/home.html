@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Home</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Library</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'logout'%}" onclick="confirmLogout()">Logout</a></li>
+                <li><a href="/home">Home</a></li>
+                {% if user %}
+                    {% if user.role == 'Admin' %}
+                        <li><a href="/admin-dashboard">Admin Dashboard</a></li>
+                    {% elif user.role == 'User' %}
+                    <li><a href="{% url 'user-dashboard'%}">User dashboard</a></li>
+                    {% elif user.role == 'Staff' %}
+                    <li><a href="/staff-dashboard/">Staff dashboard</a></li>
+                    {% endif %}
+                {% endif %}
+                <li><a href="/book-details">Book Details</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/search-results">Search Results</a></li>
+
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for books...">
+            <button onclick="searchBooks()">Search</button>
+        </div>
+    </header>
+    <main>
+        <section class="featured-books">
+            <h2>Featured Books</h2>
+            <div class="books-container">
+                <!-- Example of featured books, you can dynamically load these -->
+                <div class="book">
+                    <h3>Book Title 1</h3>
+                    <p>Author: Author 1</p>
+                </div>
+                <div class="book">
+                    <h3>Book Title 2</h3>
+                    <p>Author: Author 2</p>
+                </div>
+            </div>
+        </section>
+        <section class="ai-recommendations">
+            <h2>Personalized Recommendations</h2>
+            <div id="recommendations-container">
+                <!-- Recommendations will be populated here -->
+            </div>
+        </section>
+    </main>
+    <script src="{% static 'js/home.js' %}"></script>
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "{% url 'logout' %}";  // Redirect to the logout URL
+            }
+        }
+        </script>
+        
+</body>
+</html>

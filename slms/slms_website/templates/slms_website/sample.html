@@ -1,0 +1,19 @@
+<!-- slms_website/templates/slms_website/sample.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book List</title>
+</head>
+<body>
+    <h1>All Books</h1>
+    <ul>
+        {% for book in books %}
+            <li>{{ book.title }}</li> <!-- Assuming Book model has a 'title' field -->
+        {% empty %}
+            <li>No books found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

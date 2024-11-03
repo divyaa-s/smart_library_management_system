@@ -1,0 +1,67 @@
+{% load static %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="{% static 'css/contact.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Library</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'logout'%}" onclick="confirmLogout()">Logout</a></li>
+                <li><a href="/home">Home</a></li>
+                {% if user %}
+                    {% if user.role == 'Admin' %}
+                        <li><a href="/admin-dashboard">Admin Dashboard</a></li>
+                    {% elif user.role == 'User' %}
+                    <li><a href="/user-dashboard">User dashboard</a></li>
+                    {% elif user.role == 'Staff' %}
+                    <li><a href="/staff-dashboard/">Staff dashboard</a></li>
+                    {% endif %}
+                {% endif %}
+                <li><a href="/book-details">Book Details</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/search-results">Search Results</a></li>
+
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for books...">
+            <button onclick="searchBooks()">Search</button>
+        </div>
+    </header>
+    <main class="main-content">
+        <form class="contact-form" onsubmit="submitContactForm(); return false;">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+            <label for="message">Message:</label>
+            <textarea id="message" rows="4" required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+        <section>
+            <h2>Library Location and Hours</h2>
+            <p>Address: 123 Library St, Booktown</p>
+            <p>Hours: Mon-Fri, 9am - 5pm</p>
+        </section>
+    </main>
+    <script src="{% static 'js/contact.js' %}"></script>
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "{% url 'logout' %}";  // Redirect to the logout URL
+            }
+        }
+    </script>
+
+</body>
+</html>

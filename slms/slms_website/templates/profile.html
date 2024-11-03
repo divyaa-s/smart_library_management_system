@@ -1,0 +1,85 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Library</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'logout'%}" onclick="confirmLogout()">Logout</a></li>
+                <li><a href="/home">Home</a></li>
+                {% if user %}
+                    {% if user.role == 'Admin' %}
+                        <li><a href="/admin-dashboard">Admin Dashboard</a></li>
+                    {% elif user.role == 'User' %}
+                    <li><a href="/user-dashboard">User dashboard</a></li>
+                    {% elif user.role == 'Staff' %}
+                    <li><a href="/staff-dashboard/">Staff dashboard</a></li>
+                    {% endif %}
+                {% endif %}
+                <li><a href="/book-details">Book Details</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/search-results">Search Results</a></li>
+
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for books...">
+            <button onclick="searchBooks()">Search</button>
+        </div>
+    </header>
+    <div class="user-profile">
+        <h2>Profile of {{ user.name }}</h2>
+
+        <section class="personal-info">
+            <h3>Personal Information</h3>
+            <p>ID: {{ user.user_id }}</p>
+            <p>Name: {{ user.username }}</p>
+            <p>Email: {{ user.email }}</p>
+            <p>Role: {{ user.role }}</p>
+            <a href="{% url 'edit_profile' %}">Edit Profile</a>
+        </section>
+
+        <section class="reading-history">
+            <h3>Reading History</h3>
+            <ul>
+                {% for book in reading_history %}
+                    <li>{{ book.title }} by {{ book.author }} (Borrowed on: {{ book.read_date }})</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="recommendation-preferences">
+            <h3>Recommendation Preferences</h3>
+            <form method="post" action="{% url 'update_preferences' %}">
+                {% csrf_token %}
+                <label for="genres">Favorite Genres:</label>
+                <input type="text" id="genres" name="genres" value="{{ user.preferences.genres }}">
+
+                <label for="authors">Favorite Authors:</label>
+                <input type="text" id="authors" name="authors" value="{{ user.preferences.authors }}">
+
+                <button type="submit">Update Preferences</button>
+            </form>
+        </section>
+    </div>
+</body>
+<script>
+    function confirmLogout() {
+        if (confirm("Are you sure you want to log out?")) {
+            window.location.href = "{% url 'logout' %}";  // Redirect to the logout URL
+        }
+    }
+</script>
+
+</html>
