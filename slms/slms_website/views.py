@@ -10,21 +10,25 @@ from django.shortcuts import redirect, render
 
 def login(request):
     if request.method == 'POST':
-        global username 
         username = request.POST.get('username')
         password = request.POST.get('password')
+        selected_roles = request.POST.get('role')  # Get selected roles as a list
 
         # Query the Users table directly
         try:
-            user = User.objects.get(username=username, password_hash=password)
-            # Log the user in (You may need a custom session or auth handling)
+            # Check if user with the username, password, and selected role exists
+            user = User.objects.get(username=username, password_hash=password, role=selected_roles)
+
+            # Log the user in by storing their ID in the session
             request.session['user_id'] = user.user_id  # Store user ID in session
             return redirect('home')  # Redirect to home after successful login
+
         except User.DoesNotExist:
-            # Show error if user doesn't exist
-            return render(request, 'login.html', {'error': 'Invalid credentials.'})
+            # Show error if user doesn't exist or role is incorrect
+            return render(request, 'login.html', {'error': 'Invalid credentials or incorrect role selection.'})
 
     return render(request, 'login.html')
+
 
 
 def logout(request):
@@ -139,11 +143,29 @@ def profile(request):
         'reading_history': reading_history_details
     })
 
+
 def edit_profile(request):
+    user_id = request.session.get('user_id')
+    user = User.objects.get(user_id=user_id)
+
     if request.method == 'POST':
-        # Process form submission here (e.g., update user data)
-        pass
-    return render(request, 'edit_profile.html')
+        # Get updated information from the form
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # Update the user fields
+        user.username = username
+        user.email = email
+
+        if password:  # Only update if a new password is provided
+            user.password_hash = password  # Ensure you hash the password here
+
+        user.save()  # Save the changes to the database
+        return redirect('user-dashboard')  # Redirect to the user dashboard after update
+
+    return render(request, 'edit_profile.html', {'user': user})
+
 
 def update_preferences(request):
     if request.method == 'POST':

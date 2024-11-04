@@ -40,6 +40,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <style>
+        .role-selection {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -48,6 +61,23 @@
     </header>
     <div class="login-container">
         <form class="login-form" method="post" action="{% url 'login' %}">
+            
+
+            <div class="role-selection">
+                <div class="role-option">
+                    <input type="checkbox" name="role" value="user" id="User">
+                    <label for="user">User</label>
+                </div>
+                <div class="role-option">
+                    <input type="checkbox" name="role" value="admin" id="Admin">
+                    <label for="admin">Admin</label>
+                </div>
+                <div class="role-option">
+                    <input type="checkbox" name="role" value="staff" id="Staff">
+                    <label for="staff">Staff</label>
+                </div>
+            </div>
+            
             {% csrf_token %}
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
