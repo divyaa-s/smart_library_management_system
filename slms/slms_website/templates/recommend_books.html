@@ -1,13 +1,24 @@
-{% block content %}
-  <h2>Recommended Books Based on Your Genre Preferences</h2>
-
-  {% if books %}
-    <ul>
-      {% for book in books %}
-        <li>{{ book.title }} by {{ book.author.name }}</li>
-      {% endfor %}
-    </ul>
-  {% elif message %}
-    <p>{{ message }}</p>
-  {% endif %}
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recommended Books</title>
+</head>
+<body>
+    <h2>Recommended Books Based on Your Genre Preferences</h2>
+    
+    {% if genre %}
+        <h3>Genre: {{ genre.genre_name }}</h3>  <!-- Display the genre first -->
+        {% if books %}
+            <ul>
+            {% for book in books %}
+                <li>{{ book.title }} by {{ book.author }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No books found in this genre.</p>
+        {% endif %}
+    {% else %}
+        <p>{{ message }}</p>  <!-- Display a message if no genre is found or preferences are empty -->
+    {% endif %}
+</body>
+</html>
