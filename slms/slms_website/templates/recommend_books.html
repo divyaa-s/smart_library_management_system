@@ -1,0 +1,13 @@
+{% block content %}
+  <h2>Recommended Books Based on Your Genre Preferences</h2>
+
+  {% if books %}
+    <ul>
+      {% for book in books %}
+        <li>{{ book.title }} by {{ book.author.name }}</li>
+      {% endfor %}
+    </ul>
+  {% elif message %}
+    <p>{{ message }}</p>
+  {% endif %}
+{% endblock %}

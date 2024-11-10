@@ -1,0 +1,21 @@
+{% block content %}
+  <h2>Set Your Genre Preferences</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    
+    <!-- Render the Genre Dropdown -->
+    <div>
+      <label for="genres">Favorite Genre:</label>
+      <select id="genres" name="genres">
+        {% for choice in form.genres.field.choices %}
+          <option value="{{ choice.0 }}" {% if choice.0 == form.genres.value %}selected{% endif %}>
+            {{ choice.1 }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit">Save Preferences</button>
+  </form>
+{% endblock %}

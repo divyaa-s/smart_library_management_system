@@ -63,12 +63,6 @@
             <h3>Recommendation Preferences</h3>
             <form method="post" action="{% url 'update_preferences' %}">
                 {% csrf_token %}
-                <label for="genres">Favorite Genres:</label>
-                <input type="text" id="genres" name="genres" value="{{ user.preferences.genres }}">
-
-                <label for="authors">Favorite Authors:</label>
-                <input type="text" id="authors" name="authors" value="{{ user.preferences.authors }}">
-
                 <button type="submit">Update Preferences</button>
             </form>
         </section>

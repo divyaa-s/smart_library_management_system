@@ -80,7 +80,7 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.mysql',  # Use this line if using PyMySQL
         'NAME': 'smart_library_management_system',  # Replace with your MySQL database name
         'USER': 'root',    # Replace with your MySQL username
-        'PASSWORD': 'dishadarsh',  # Replace with your MySQL password
+        'PASSWORD': 'mypass',  # Replace with your MySQL password
         'HOST': 'localhost',  # Or your MySQL server address
         'PORT': '3306',  # Default MySQL port
     }
@@ -130,3 +130,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+
+# Make sure the session engine is enabled
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Store session in the database
+
+# Session cookie settings (optional but useful)
+SESSION_COOKIE_AGE = 3600  # 1 hour session expiry
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # End the session when the browser is closed (optional)

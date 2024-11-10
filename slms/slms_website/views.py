@@ -7,17 +7,19 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import redirect, render
 
 
+from django.shortcuts import render, redirect
+from .models import User  # Assuming you have a custom User model
 
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        selected_roles = request.POST.get('role')  # Get selected roles as a list
+        selected_role = request.POST.get('role')  # Get selected role
 
         # Query the Users table directly
         try:
             # Check if user with the username, password, and selected role exists
-            user = User.objects.get(username=username, password_hash=password, role=selected_roles)
+            user = User.objects.get(username=username, password_hash=password, role=selected_role)
 
             # Log the user in by storing their ID in the session
             request.session['user_id'] = user.user_id  # Store user ID in session
@@ -42,6 +44,7 @@ def home(request):
     user_id = request.session.get('user_id')
     
     user = get_object_or_404(User, user_id=user_id)
+    
     return render(request, 'home.html', {
         'user': user,  # Pass the user object to the template
     })
@@ -168,18 +171,7 @@ def edit_profile(request):
 
 
 def update_preferences(request):
-    if request.method == 'POST':
-        # Retrieve form data and update user preferences
-        genres = request.POST.get('genres')
-        authors = request.POST.get('authors')
-        # Assuming you have a user preferences model or update logic
-        # Update the preferences in the database
-        request.user.preferences.genres = genres
-        request.user.preferences.authors = authors
-        request.user.preferences.save()
-        return redirect('profile')  # Redirect back to profile page after updating
-
-    return redirect('profile')  # Redirect if accessed without POST
+    return redirect('set_preferences')  # Redirect if accessed without POST
 
 
 
@@ -265,3 +257,25 @@ def user_dashboard(request):
         'reserved_books': reserved_books,
     }
     return render(request, 'user_dashboard.html', context)
+
+
+from django.shortcuts import render, redirect
+from .forms import GenrePreferenceForm
+from .models import User
+from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import render, redirect, get_object_or_404
+
+def set_preferences(request):
+    user_id = request.session.get('user_id')
+    user = get_object_or_404(User, user_id=user_id) 
+    if request.method == 'POST':
+        form = GenrePreferenceForm(request.POST)
+        if form.is_valid():
+            selected_genre = form.cleaned_data['genres']  
+            user.preferences = selected_genre  
+            user.save()
+            return redirect('home')  
+    else:
+        form = GenrePreferenceForm(initial={'genres': user.preferences})
+    return render(request, 'set_preferences.html', {'form': form})

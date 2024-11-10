@@ -44,17 +44,21 @@ class BookCopy(models.Model):
         db_table = 'bookcopies'
 
 
+from django.db import models
+
 class User(models.Model):
     user_id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(max_length=254, unique=True)
     password_hash = models.CharField(max_length=255)
-    role = models.CharField(max_length=50)  # e.g., 'user', 'librarian'
-    total_penalty = models.DecimalField(max_digits=6, decimal_places=2)
+    role = models.CharField(max_length=50)
+    total_penalty = models.DecimalField(decimal_places=2, max_digits=6)
+    preferences = models.CharField(max_length=255, null=True, blank=True)  # Changed to CharField
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         db_table = 'users'
+
 
 
 class BorrowedBook(models.Model):
@@ -144,3 +148,6 @@ class Staff(models.Model):
     
     class Meta:
         db_table = 'staff'
+
+
+
