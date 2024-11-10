@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -20,15 +19,14 @@
                     {% if user.role == 'Admin' %}
                         <li><a href="/admin-dashboard">Admin Dashboard</a></li>
                     {% elif user.role == 'User' %}
-                    <li><a href="/user-dashboard">User dashboard</a></li>
+                        <li><a href="/user-dashboard">User dashboard</a></li>
                     {% elif user.role == 'Staff' %}
-                    <li><a href="/staff-dashboard/">Staff dashboard</a></li>
+                        <li><a href="/staff-dashboard/">Staff dashboard</a></li>
                     {% endif %}
                 {% endif %}
                 <li><a href="/book-details">Book Details</a></li>
                 <li><a href="/profile">Profile</a></li>
                 <li><a href="/search-results">Search Results</a></li>
-
                 <li><a href="/about">About</a></li>
                 <li><a href="/contact">Contact Us</a></li>
             </ul>
@@ -39,7 +37,7 @@
         </div>
     </header>
     <div class="user-profile">
-        <h2>Profile of {{ user.name }}</h2>
+        <h2>Profile of {{ user.username }}</h2>
 
         <section class="personal-info">
             <h3>Personal Information</h3>
@@ -50,13 +48,19 @@
             <a href="{% url 'edit_profile' %}">Edit Profile</a>
         </section>
 
-        <section class="reading-history">
+        <section class="reading_history">
             <h3>Reading History</h3>
-            <ul>
-                {% for book in reading_history %}
-                    <li>{{ book.title }} by {{ book.author }} (Borrowed on: {{ book.read_date }})</li>
-                {% endfor %}
-            </ul>
+            {% if reading_history %}
+                <ul>
+                    {% for entry in reading_history %}
+                        {% for book in entry.books %}
+                            <li>{{ book.title }} by {{ book.author }} (Borrowed on: {{ book.read_date }})</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reading history available.</p>
+            {% endif %}
         </section>
 
         <section class="recommendation-preferences">
@@ -75,5 +79,4 @@
         }
     }
 </script>
-
 </html>

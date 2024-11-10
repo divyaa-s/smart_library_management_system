@@ -98,13 +98,12 @@ class Reservation(models.Model):
 
 class ReadingHistory(models.Model):
     history_id = models.AutoField(primary_key=True)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book_ids = models.JSONField(default=list)  # This will store an array of book_ids (list of integers)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     read_date = models.DateField()
     
     class Meta:
         db_table = 'readinghistory'
-
 
 class BookReview(models.Model):
     review_id = models.AutoField(primary_key=True)

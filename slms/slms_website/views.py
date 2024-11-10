@@ -30,37 +30,60 @@ def login(request):
 
     return render(request, 'login.html')
 
+
+from django.db import transaction  # Import transaction
+from django.contrib import messages
 def signup(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
+        role = 'User'  # Since signup is only for users, role is set to 'user'
 
-        # Check if email already exists
-        if User.objects.filter(email=email).exists():
-            return render(request, 'signup.html', {'error': 'Email already registered.'})
+        # Hash the password (you should use a secure hashing method in production)
+        password_hash = password
 
-        # Create a new User with the role 'User'
-        hashed_password = password
-        user = User.objects.create(
-            username=username,
-            email=email,
-            password_hash=hashed_password,
-            role='User',  # Only 'User' role can sign up
-            total_penalty=0.00,
-            created_at=timezone.now()
-        )
+        try:
+            # Begin a transaction block
+            with transaction.atomic():
+                # Create the User instance
+                user = User.objects.create(
+                    username=username,
+                    email=email,
+                    password_hash=password_hash,
+                    role=role,
+                    total_penalty=0.0,  # Default penalty to 0
+                    created_at=timezone.now()
+                )
+                user.save()
+                #Create default ReadingHistory (optional)
+                reading_history = ReadingHistory(user=user, book=None, read_date=timezone.now())
+                reading_history.save()
+                print(f"ReadingHistory created: {reading_history}")
 
-        # Create related entries for the user
-        Penalty.objects.create(user_id=user.user_id, penalty_amount=0.00, created_at=timezone.now(), reason="")
-        ReadingHistory.objects.create(user_id=user.user_id, read_date=timezone.now())
-        AIRecommendation.objects.create(user_id=user.user_id, score=0, created_at=timezone.now())
+                # Create default AIRecommendation (optional)
+                ai_recommendation = AIRecommendation(user=user, book=None, score=0.0, created_at=timezone.now())
+                ai_recommendation.save()
+                print(f"AIRecommendation created: {ai_recommendation}")
 
+                # Optionally, create a default AIRecommendations record (you may choose to have this after some activity)
+                AIRecommendation.objects.create(
+                    user=user,  # Link the new user instance
+                    book_id=None,  # No recommendations yet, set it to None or placeholder
+                    score=0.0,  # Default score to 0
+                    created_at=timezone.now()
+                )
 
-        return redirect('login')  # Redirect to login after successful signup
+            # If all operations succeed, show a success message and redirect
+            messages.success(request, "Your account has been created successfully!")
+            return redirect('login')
+
+        except Exception as e:
+            # If any exception occurs (e.g., if one of the records cannot be created), the transaction will be rolled back
+            messages.error(request, f"An error occurred: {e}")
+            return render(request, 'signup.html')
 
     return render(request, 'signup.html')
-
 
 
 
@@ -150,44 +173,71 @@ def book_details(request):
     return render(request, 'book_details.html', {'user' : user, 'book': book, 'similar_books': similar_books})
 
 
-
+from django.shortcuts import render, redirect, get_object_or_404
+from slms_website.models import User, ReadingHistory, Book, Author
 def profile(request):
     # Check if user is logged in
     user_id = request.session.get('user_id')
-    
-    user = get_object_or_404(User, user_id=user_id)
     if not user_id:
         return redirect('login')  # Redirect to login if not logged in
 
     # Retrieve user information and reading history
+    user = get_object_or_404(User, user_id=user_id)
+
+    # Get the reading history entries for the user
+    reading_history_details = []
+
     try:
-        user = User.objects.get(user_id=user_id)
+        # Fetch all the reading history records for the user
+        reading_history = ReadingHistory.objects.filter(user=user)
 
-        # Initialize a list to hold reading history details
-        reading_history_details = []
-        read_history = ReadingHistory.objects.get(user_id=user_id)
-        book = Book.objects.get(book_id=read_history.book_id)  # Ensure you are fetching the correct Book instance
-        author = Author.objects.get(author_id=book.author_id)
+        if not reading_history.exists():
+            # If there's no reading history, handle this case accordingly
+            reading_history_details.append({
+                'message': "No reading history found for this user."
+            })
+        else:
+            # Iterate over each reading history entry
+            for entry in reading_history:
+                entry_data = {
+                    'read_date': entry.read_date,
+                    'books': []  # Initialize an empty list for books
+                }
+                
+                try:
+                    # Loop through the book_ids stored in the JSON field
+                    for book_id in entry.book_ids:
+                        print(book_id)
+                        # Get the book using the book_id from the JSON field
+                        book = Book.objects.get(book_id=book_id)
 
-        # Prepare the data for this entry
-        entry_data = {
-            'read_date': read_history.read_date,
-            'title': book.title,
-            'book_id': book.book_id,
-            'author': author.name  # Assuming a ManyToMany relationship
-        }
+                        # Append book details to the entry
+                        book_data = {
+                            'title': book.title,
+                            'author': book.author.name,  # Assuming Book model has author as a foreign key
+                            'book_id': book.book_id
+                        }
+                        entry_data['books'].append(book_data)
 
-        # Append this entry's data to the list
-        reading_history_details.append(entry_data)
+                except Book.DoesNotExist:
+                    # Handle case where a book ID doesn't exist
+                    entry_data['books'].append({
+                        'message': f"Book with ID {book_id} does not exist."
+                    })
+                
+                # Add the entry data to the list of reading history details
+                reading_history_details.append(entry_data)
 
-    except User.DoesNotExist:
-        return redirect('login')  # Redirect to login if user not found
+    except ReadingHistory.DoesNotExist:
+        reading_history_details.append({
+            'message': "Reading history does not exist for this user."
+        })
 
+    # Return the response with reading history
     return render(request, 'profile.html', {
         'user': user,
         'reading_history': reading_history_details
     })
-
 
 def edit_profile(request):
     user_id = request.session.get('user_id')
@@ -290,7 +340,7 @@ def user_dashboard(request):
     reserved_books = Reservation.objects.filter(user=user)
 
     # Generate recommendations based on updated logic
-    recommended_books = get_recommendations(user)
+    recommended_books = recommend_books(user)
 
     context = {
         'user': user,
@@ -322,19 +372,10 @@ def set_preferences(request):
         form = GenrePreferenceForm(initial={'genres': user.preferences})
     return render(request, 'set_preferences.html', {'form': form})
 
-def recommend_books(request):
-    # Assuming user is logged in and user_id is stored in session
-    user_id = request.session.get('user_id')
-    
-    if user_id is None:
-        # Handle case where user is not logged in
-        return redirect('login')  # Or another appropriate page
-
-    # Use user_id to fetch the user instead of using 'id'
-    user = get_object_or_404(User, user_id=user_id)  # Use user_id field here
-
+def recommend_books(user):
+    # Assuming user preferences are stored as genre name
     if user.preferences:
-        preferred_genre_name = user.preferences  # Assuming preferences are stored as genre name
+        preferred_genre_name = user.preferences
         
         # Attempt to get the Genre object using the genre name stored in preferences
         try:
@@ -347,6 +388,6 @@ def recommend_books(request):
             books = Book.objects.filter(genre=genre)
 
             if books.exists():
-                return render(request, 'recommend_books.html', {'genre': genre, 'books': books})
+                return books  # Return the list of recommended books
 
-    return render(request, 'recommend_books.html', {'message': 'No books found for your preferences.'})
+    return []  # Return empty if no books found or preference not set
