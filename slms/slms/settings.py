@@ -80,7 +80,7 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.mysql',  # Use this line if using PyMySQL
         'NAME': 'smart_library_management_system',  # Replace with your MySQL database name
         'USER': 'root',    # Replace with your MySQL username
-        'PASSWORD': 'mypass',  # Replace with your MySQL password
+        'PASSWORD': 'dishadarsh',  # Replace with your MySQL password
         'HOST': 'localhost',  # Or your MySQL server address
         'PORT': '3306',  # Default MySQL port
     }

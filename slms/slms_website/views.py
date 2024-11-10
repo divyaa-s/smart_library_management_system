@@ -5,8 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import redirect, render
-
-
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from .models import User  # Assuming you have a custom User model
 
@@ -30,6 +29,38 @@ def login(request):
             return render(request, 'login.html', {'error': 'Invalid credentials or incorrect role selection.'})
 
     return render(request, 'login.html')
+
+def signup(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # Check if email already exists
+        if User.objects.filter(email=email).exists():
+            return render(request, 'signup.html', {'error': 'Email already registered.'})
+
+        # Create a new User with the role 'User'
+        hashed_password = password
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password_hash=hashed_password,
+            role='User',  # Only 'User' role can sign up
+            total_penalty=0.00,
+            created_at=timezone.now()
+        )
+
+        # Create related entries for the user
+        Penalty.objects.create(user_id=user.user_id, penalty_amount=0.00, created_at=timezone.now(), reason="")
+        ReadingHistory.objects.create(user_id=user.user_id, read_date=timezone.now())
+        AIRecommendation.objects.create(user_id=user.user_id, score=0, created_at=timezone.now())
+
+
+        return redirect('login')  # Redirect to login after successful signup
+
+    return render(request, 'signup.html')
+
 
 
 
