@@ -39,15 +39,26 @@ def logout(request):
 
 
 
+from django.shortcuts import render, get_object_or_404
+from .models import User, Genre, Book
 
 def home(request):
     user_id = request.session.get('user_id')
-    
     user = get_object_or_404(User, user_id=user_id)
-    
-    return render(request, 'home.html', {
-        'user': user,  # Pass the user object to the template
-    })
+
+    # Fetch personalized recommendations based on the user's preferences
+    recommendations = []
+    if user.preferences:
+        preferred_genre_name = user.preferences
+        try:
+            genre = Genre.objects.get(genre_name=preferred_genre_name)
+            books = Book.objects.filter(genre=genre)
+            recommendations = books
+        except Genre.DoesNotExist:
+            recommendations = []  # Handle case where genre doesn't exist
+
+    return render(request, 'home.html', {'user': user, 'recommendations': recommendations})
+
 
 
 def about(request):
@@ -279,3 +290,32 @@ def set_preferences(request):
     else:
         form = GenrePreferenceForm(initial={'genres': user.preferences})
     return render(request, 'set_preferences.html', {'form': form})
+
+def recommend_books(request):
+    # Assuming user is logged in and user_id is stored in session
+    user_id = request.session.get('user_id')
+    
+    if user_id is None:
+        # Handle case where user is not logged in
+        return redirect('login')  # Or another appropriate page
+
+    # Use user_id to fetch the user instead of using 'id'
+    user = get_object_or_404(User, user_id=user_id)  # Use user_id field here
+
+    if user.preferences:
+        preferred_genre_name = user.preferences  # Assuming preferences are stored as genre name
+        
+        # Attempt to get the Genre object using the genre name stored in preferences
+        try:
+            genre = Genre.objects.get(genre_name=preferred_genre_name)
+        except Genre.DoesNotExist:
+            genre = None
+
+        # If genre exists, find books in that genre
+        if genre:
+            books = Book.objects.filter(genre=genre)
+
+            if books.exists():
+                return render(request, 'recommend_books.html', {'genre': genre, 'books': books})
+
+    return render(request, 'recommend_books.html', {'message': 'No books found for your preferences.'})

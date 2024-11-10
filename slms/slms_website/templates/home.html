@@ -18,18 +18,16 @@
                     {% if user.role == 'Admin' %}
                         <li><a href="/admin-dashboard">Admin Dashboard</a></li>
                     {% elif user.role == 'User' %}
-                    <li><a href="{% url 'user-dashboard'%}">User dashboard</a></li>
+                        <li><a href="{% url 'user-dashboard'%}">User dashboard</a></li>
                     {% elif user.role == 'Staff' %}
-                    <li><a href="/staff-dashboard/">Staff dashboard</a></li>
+                        <li><a href="/staff-dashboard/">Staff dashboard</a></li>
                     {% endif %}
                 {% endif %}
                 <li><a href="/book-details">Book Details</a></li>
                 <li><a href="/profile">Profile</a></li>
                 <li><a href="/search-results">Search Results</a></li>
-
                 <li><a href="/about">About</a></li>
                 <li><a href="/contact">Contact Us</a></li>
-                
             </ul>
         </nav>
         <div class="search-bar">
@@ -52,12 +50,19 @@
                 </div>
             </div>
         </section>
+
         <section class="ai-recommendations">
             <h2>Personalized Recommendations</h2>
             <div id="recommendations-container">
-                <!-- Recommendations will be populated here -->
-                <li><a href="/recommend_books">Recommendations</a></li>
-                
+                {% if recommendations %}
+                    <ul>
+                        {% for book in recommendations %}
+                            <li>{{ book.title }} by {{ book.author }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No personalized recommendations available.</p>
+                {% endif %}
             </div>
         </section>
     </main>
@@ -68,7 +73,6 @@
                 window.location.href = "{% url 'logout' %}";  // Redirect to the logout URL
             }
         }
-        </script>
-        
+    </script>
 </body>
 </html>

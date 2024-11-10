@@ -19,7 +19,7 @@ urlpatterns = [
     path('search-results/', search_results, name='search-results'),
     path('book-details/', book_details, name='book_details'),
     path('set_preferences/', set_preferences, name='set_preferences'),
-    #path('recommend_books/', recommend_books, name='recommend_books'),
+    path('recommend_books/', recommend_books, name='recommend_books'),
     
     
 ]
