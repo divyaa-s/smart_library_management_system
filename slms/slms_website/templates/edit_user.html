@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User</title>
+</head>
+<body>
+
+<h1>Edit User: {{ user.username }}</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username" value="{{ user.username }}" required><br><br>
+
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" value="{{ user.email }}"><br><br>
+
+    <label for="role">Role:</label>
+    <select name="role" id="role">
+        <option value="User" {% if not user.is_staff %}selected{% endif %}>User</option>
+        <option value="Admin" {% if user.is_staff %}selected{% endif %}>Admin</option>
+    </select><br><br>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+</body>
+</html>
