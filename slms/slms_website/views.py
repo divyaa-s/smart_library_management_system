@@ -135,14 +135,6 @@ def contact(request):
         'user': user,  # Pass the user object to the template
     })
 
-def admin_dashboard(request):
-    user_id = request.session.get('user_id')
-    
-    user = get_object_or_404(User, user_id=user_id)
-    return render(request, 'admin_dashboard.html', {
-        'user': user,  # Pass the user object to the template
-    })
-
 def staff_dashboard(request):
     user_id = request.session.get('user_id')
     
@@ -318,18 +310,7 @@ def search_results(request):
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import User, Book  # Ensure you import the correct User model
-'''
-def get_recommendations(user):
-    # Get the genres of books the user has borrowed
-    borrowed_genres = BorrowedBook.objects.filter(user=user).values_list('book__genre', flat=True)
-    
-    # Recommend books of similar genres that the user has not read
-    recommended_books = Book.objects.filter(genre__in=borrowed_genres).exclude(
-        book_id__in=ReadingHistory.objects.filter(user=user).values_list('book_id', flat=True)
-    ).distinct()[:5]  # Limit recommendations to top 5 for simplicity
-    
-    return recommended_books
-'''
+
 
 def user_dashboard(request):
     user_id = request.session.get('user_id')
@@ -392,92 +373,21 @@ def recommend_books(user):
 
     return []  # Return empty if no books found or preference not set
 
-'''
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.contrib import messages
+#########################################################################################################################
+#                                                   ADMIN DASHBOARD
+#########################################################################################################################
 
-
-def add_user(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        role = request.POST.get('role')  # Role should be chosen in form: "User", "Staff", etc.
-
-        if not username or not password or not role:
-            messages.error(request, "Please fill in all required fields.")
-            return redirect('add_user')
-        
-        # Create new user
-        new_user = User.objects.create_user(username=username, email=email, password=password)
-        new_user.save()
-        
-        messages.success(request, f"User {username} added successfully.")
-        return redirect('manage_users')
-    
-    return render(request, 'add_user.html')
-
-
-def edit_user(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-
-    if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        role = request.POST.get('role')
-
-        user.username = username if username else user.username
-        user.email = email if email else user.email
-        # Here, set any additional fields as needed
-        user.save()
-
-        messages.success(request, f"User {user.username} updated successfully.")
-        return redirect('manage_users')
-
-    context = {
-        'user': user
-    }
-    return render(request, 'edit_user.html', context)
-
-
-
-def delete_user(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    if request.method == "POST":
-        username = user.username
-        user.delete()
-        messages.success(request, f"User {username} deleted successfully.")
-        return redirect('manage_users')
-
-    context = {
-        'user': user
-    }
-    return render(request, 'delete_user.html', context)
-
-
-
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User
-
-def manage_users(request):
+def admin_dashboard(request):
     user_id = request.session.get('user_id')
     
-    user = get_object_or_404(User, id=user_id)
-    users = User.objects.all()
-    context = {
-        'users': users
-    }
+    user = get_object_or_404(User, user_id=user_id)
+    return render(request, 'admin_dashboard.html', {
+        'user': user,  # Pass the user object to the template
+    })
 
-    return render(request, 'manage_users.html', context)
-'''
-
-
-
+#``````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
 # Add User
 def add_user(request):
     if request.method == "POST":
@@ -570,3 +480,122 @@ def manage_users(request):
     }
 
     return render(request, 'manage_users.html', context)
+
+#``````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Book
+
+# Add Book
+def add_book(request):
+    if request.method == "POST":
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        genre = request.POST.get('genre')
+        isbn = request.POST.get('isbn')
+        synopsis = request.POST.get('synopsis')
+
+        if not title or not author or not genre:
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('add_book')
+        
+        # Create new book
+        new_book = Book.objects.create(
+            title=title,
+            author=author,
+            genre=genre,
+            isbn=isbn,
+            synopsis=synopsis
+        )
+        
+        messages.success(request, f"Book '{title}' added successfully.")
+        return redirect('manage_books')
+    
+    return render(request, 'add_book.html')
+
+
+# Edit Book
+def edit_book(request, book_id):
+    # Fetch the book from the database
+    book = get_object_or_404(Book, pk=book_id)
+
+    if request.method == "POST":
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        genre = request.POST.get('genre')
+        isbn = request.POST.get('isbn')
+        synopsis = request.POST.get('synopsis')
+
+        # Update the fields
+        book.title = title if title else book.title
+        book.author = author if author else book.author
+        book.genre = genre if genre else book.genre
+        book.isbn = isbn if isbn else book.isbn
+        book.synopsis = synopsis if synopsis else book.synopsis
+        book.save()
+
+        messages.success(request, f"Book '{book.title}' updated successfully.")
+        return redirect('manage_books')
+
+    context = {
+        'book': book
+    }
+    return render(request, 'edit_book.html', context)
+
+
+# Delete Book
+def delete_book(request, book_id):
+    # Fetch the book from the database
+    book = get_object_or_404(Book, pk=book_id)
+    if request.method == "POST":
+        book_title = book.title
+        book.delete()
+        messages.success(request, f"Book '{book_title}' deleted successfully.")
+        return redirect('manage_books')
+
+    context = {
+        'book': book
+    }
+    return render(request, 'delete_book.html', context)
+
+'''
+# Manage Books - Display all books
+def manage_books(request):
+    # Get the user id from the session
+    user_id = request.session.get('user_id')
+
+    # Fetch all books for admin to manage
+    books = Book.objects.all()
+    context = {
+        'books': books
+    }
+
+    return render(request, 'manage_books.html', context)
+
+'''
+
+def manage_books(request):
+    # Get the user id from the session
+    user_id = request.session.get('user_id')
+    books_with_details=[]
+    # Fetch all books along with related author and genre data
+    for book in Book.objects.select_related('author', 'genre'):
+        books_with_details.append(
+            {
+                'book_id': book.book_id,
+                'title': book.title,
+                'author_name': book.author.name,  # Access related author directly
+                'genre_name': book.genre.genre_name,  # Access related genre directly
+                'isbn': book.isbn,
+                'availability': "Yes" if book.availability else "No",
+            }
+            
+        )
+        print(book.author.name, book.genre.genre_name)
+
+    context = {
+        'books': books_with_details,
+    }
+
+    return render(request, 'manage_books.html', context)

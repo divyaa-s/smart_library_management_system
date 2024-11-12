@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Book</title>
+    <style>
+        /* Simplified style for confirmation */
+        body, .container, h2, .btn {
+            /* Reuse styles from add_book.html */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Delete Book</h2>
+        <p>Are you sure you want to delete the book titled "{{ book.title }}"?</p>
+        <form method="POST" action="{% url 'delete_book' book_id=book.book_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background-color: #dc3545;">Delete Book</button>
+            <a href="{% url 'manage_books' %}" class="btn" style="background-color: #6c757d; margin-top: 10px;">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

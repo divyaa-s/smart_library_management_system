@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
 <body>
+
     <header>
         <h1>Welcome to the Library</h1>
         <nav>
@@ -35,7 +36,6 @@
             <button onclick="searchBooks()">Search</button>
         </div>
     </header>
-    <main>
         <section class="featured-books">
             <h2>Featured Books</h2>
             <div class="books-container">
@@ -65,7 +65,6 @@
                 {% endif %}
             </div>
         </section>
-    </main>
     <script src="{% static 'js/home.js' %}"></script>
     <script>
         function confirmLogout() {
