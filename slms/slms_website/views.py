@@ -93,9 +93,6 @@ def logout(request):
 
 
 
-from django.shortcuts import render, get_object_or_404
-from .models import User, Genre, Book
-
 def home(request):
     user_id = request.session.get('user_id')
     user = get_object_or_404(User, user_id=user_id)
@@ -103,15 +100,25 @@ def home(request):
     # Fetch personalized recommendations based on the user's preferences
     recommendations = []
     if user.preferences:
-        preferred_genre_name = user.preferences
-        try:
-            genre = Genre.objects.get(genre_name=preferred_genre_name)
-            books = Book.objects.filter(genre=genre)
-            recommendations = books
-        except Genre.DoesNotExist:
-            recommendations = []  # Handle case where genre doesn't exist
+        preferred_genre_name = user.preferences.strip()  # Ensure no leading/trailing spaces
 
-    return render(request, 'home.html', {'user': user, 'recommendations': recommendations})
+        if preferred_genre_name:
+            try:
+                # Fetch the genre object that matches the preferred genre
+                genre = Genre.objects.get(genre_name=preferred_genre_name)
+
+                # Get books of that genre
+                recommendations = Book.objects.filter(genre=genre)[:5]  # Get top 5 books
+            except Genre.DoesNotExist:
+                recommendations = []  # Handle case where the genre doesn't exist
+        else:
+            recommendations = []  # If preferences are empty or invalid, no recommendations
+
+    # Fetch the most recently added books (Featured Books)
+    featured_books = Book.objects.all().order_by('-created_at')[:2]  # Top 5 newest books
+
+    # Pass user, recommendations, and featured books to the template
+    return render(request, 'home.html', {'user': user, 'recommendations': recommendations, 'featured_books': featured_books})
 
 
 

@@ -36,35 +36,34 @@
             <button onclick="searchBooks()">Search</button>
         </div>
     </header>
-        <section class="featured-books">
-            <h2>Featured Books</h2>
-            <div class="books-container">
-                <!-- Example of featured books, you can dynamically load these -->
-                <div class="book">
-                    <h3>Book Title 1</h3>
-                    <p>Author: Author 1</p>
-                </div>
-                <div class="book">
-                    <h3>Book Title 2</h3>
-                    <p>Author: Author 2</p>
-                </div>
-            </div>
-        </section>
 
-        <section class="ai-recommendations">
-            <h2>Personalized Recommendations</h2>
-            
-                {% if recommendations %}
-                    <ul>
-                        {% for book in recommendations %}
-                            <li>{{ book.title }} by {{ book.author }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No personalized recommendations available.</p>
-                {% endif %}
-            </div>
-        </section>
+    <section class="featured-books">
+        <h2>Featured Books</h2>
+        <div class="books-container">
+            {% for book in featured_books %}
+                <div class="book">
+                    <h3>{{ book.title }}</h3>
+                    <p>Author: {{ book.author.name }}</p>
+                    <p>ISBN: {{ book.isbn }}</p>
+                </div>
+            {% empty %}
+                <p>No featured books available.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="ai-recommendations">
+        <h2>Personalized Recommendations</h2>
+        {% if recommendations %}
+            <ul>
+                {% for book in recommendations %}
+                    <li>{{ book.title }} by {{ book.author }}</li>
+                {% endfor %}
+        {% else %}
+            <p>No personalized recommendations available.</p>
+        {% endif %}
+    </section>
+
     <script src="{% static 'js/home.js' %}"></script>
     <script>
         function confirmLogout() {
