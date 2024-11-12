@@ -71,7 +71,7 @@
             <button onclick="searchBooks()">Search</button>
         </div>
     </header>
-    
+    <section class="featured-books">
     <div class="search-bar">
         <h2>Search for a Book by ID</h2>
         <form method="GET" action="{% url 'book_details' %}">
@@ -106,7 +106,7 @@
     {% else %}
         <p>No book found. Please search with a valid ID.</p>
     {% endif %}
-
+    </section>
 </body>
 <script>
     function confirmLogout() {

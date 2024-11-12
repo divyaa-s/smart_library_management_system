@@ -44,10 +44,7 @@
                 <div class="book">
                     <h3>{{ book.title }}</h3>
                     <p>Author: {{ book.author.name }}</p>
-                    <p>ISBN: {{ book.isbn }}</p>
                 </div>
-            {% empty %}
-                <p>No featured books available.</p>
             {% endfor %}
         </div>
     </section>
@@ -57,10 +54,24 @@
         {% if recommendations %}
             <ul>
                 {% for book in recommendations %}
-                    <li>{{ book.title }} by {{ book.author }}</li>
+                    <li>{{ book.title }} by {{ book.author.name }}</li>
                 {% endfor %}
+            </ul>
         {% else %}
             <p>No personalized recommendations available.</p>
+        {% endif %}
+    </section>
+
+    <section class="featured-books">
+        <h2>Upcoming Library Events</h2>
+        {% if library_events %}
+            <ul>
+                {% for event in library_events %}
+                    <li>{{ event.event_name }} - {{ event.event_date|date:"F j, Y" }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No upcoming events at the moment.</p>
         {% endif %}
     </section>
 
@@ -72,5 +83,6 @@
             }
         }
     </script>
+
 </body>
 </html>
