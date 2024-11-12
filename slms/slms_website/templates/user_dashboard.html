@@ -140,6 +140,9 @@
                     <li>No reserved books currently.</li>
                 {% endfor %}
             </ul>
+
+            <button onclick="window.location.href='{% url 'book_list' %}'">Reserve a Book</button>
+            
         </section>
 
         <section class="dashboard-section">
@@ -151,6 +154,7 @@
                     <li>No recommendations available.</li>
                 {% endfor %}
             </ul>
+            
         </section>
 
         <section class="dashboard-section">
@@ -158,7 +162,7 @@
             <ul>
                 <li><a href="{% url 'edit_profile' %}">Edit Account Settings</a></li>
             </ul>
-        </section>
+        </section>  
     </main>
 
     <script src="{% static 'js/user_dashboard.js' %}"></script>

@@ -29,6 +29,10 @@ urlpatterns = [
     path('book-details/', book_details, name='book_details'),
     path('set_preferences/', set_preferences, name='set_preferences'),
     path('recommend_books/', recommend_books, name='recommend_books'),
+    path('reserve/<int:book_id>/', reserve_book, name='reserve_book'),
+    path('borrow/<int:book_id>/', borrow_book, name='borrow_book'),
+    path('books/', view_books, name='book_list'),
+
     
     
 ]

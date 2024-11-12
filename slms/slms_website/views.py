@@ -607,3 +607,75 @@ def manage_books(request):
     }
 
     return render(request, 'manage_books.html', context)
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Book, Reservation, User
+
+
+def view_books(request):
+    user_id = request.session.get('user_id')
+    user = get_object_or_404(User, user_id=user_id)
+    
+    # Get all books
+    books = Book.objects.all()
+
+    # Get reserved books for the current user
+    reserved_books = Reservation.objects.filter(user=user, expiration_date__isnull=True).values_list('book_id', flat=True)
+
+    return render(request, 'book_list.html', {'books': books, 'reserved_books': reserved_books})
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Book, Reservation, User
+from datetime import datetime, timedelta
+
+
+
+from django.utils import timezone
+from datetime import timedelta
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+
+def reserve_book(request, book_id):
+    user_id = request.session.get('user_id')
+    user = get_object_or_404(User, user_id=user_id)
+    
+    if request.method == 'POST':
+        book = get_object_or_404(Book, book_id=book_id)
+        
+        # Check if the book is already reserved
+        if Reservation.objects.filter(book=book, expiration_date__isnull=True).exists():
+            return redirect('user-dashboard')  # Redirect to the user dashboard if already reserved
+        
+        # Set the reservation date and expiration date
+        reservation_date = timezone.now()  # Current date and time
+        expiration_date = reservation_date + timedelta(days=7)  # 7 days from now
+        
+        # Create the reservation
+        reservation = Reservation(book=book, user=user, reservation_date=reservation_date, expiration_date=expiration_date)
+        reservation.save()
+        
+        
+        # Redirect to the user dashboard after reservation
+        return redirect('user-dashboard')  # Redirect to the user dashboard
+    
+    return redirect('book_list')  # If it's not a POST request, redirect back to book list
+
+
+def borrow_book(request, book_id):
+    user_id = request.session.get('user_id')
+    user = get_object_or_404(User, user_id=user_id)
+    book = get_object_or_404(Book, book_id=book_id)
+    
+    # Check if the book is reserved
+    if Reservation.objects.filter(book=book, expiration_date__isnull=True).exists():
+        return render(request, 'error_page.html', {'message': 'This book is reserved and cannot be borrowed.'})
+    
+    # Here you would include logic to mark the book as borrowed
+    book.availability = False
+    book.save()
+    
+    return redirect('user-dashboard')
+

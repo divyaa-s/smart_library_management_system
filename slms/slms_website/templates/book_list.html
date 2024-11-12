@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book List</title>
+</head>
+<body>
+    <h1>Book List</h1>
+    {% if books %}
+        <ul>
+            {% for book in books %}
+                <li>
+                    {{ book.title }} by {{ book.author.name }} - {{ book.genre.genre_name }}
+                    {% if book.book_id in reserved_books %}
+                        <span>(Reserved)</span>
+                    {% else %}
+                        <form method="post" action="{% url 'reserve_book' book.book_id %}">
+                            {% csrf_token %}
+                            <button type="submit">Reserve</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No books available.</p>
+    {% endif %}
+</body>
+</html>
